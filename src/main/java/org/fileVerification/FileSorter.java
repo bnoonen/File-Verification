@@ -1,23 +1,17 @@
 package org.fileVerification;
 
 import java.io.File;
-import java.util.Scanner;
 
 public class FileSorter {
-    private static final Scanner userInput = new Scanner(System.in);
-    private static final LocalFileReader localReader = new LocalFileReader();
 
-    static void main () {
+    //Initialize FileReader to allow sorting
+    private LocalFileReader localReader = new LocalFileReader();
 
-        //Take user input for old and new directory. Save as File per io.File
-        System.out.println("Please enter the directory where your files are: ");
-        File oldDirectory = new File(retreiveUserInput());
-
-
-        System.out.println("Please enter the directory where you would like your files saved (note this should be the master directory containing holes, not a subdirectory): ");
-        File targetDir = new File(retreiveUserInput());
-
-        System.out.println("Thank you! Please note that any file not meeting company criteria will automatically end up in a \"null\" directory at the location specified. Please fix them accordingly. I will output a document showing what is wrong as best as possible.");
+    //Initialize FileSorter object variables for use in file upon object creation
+    public FileSorter(LocalFileReader masterReader) {
+        this.localReader = masterReader;
+    }
+    public void sortFiles(File oldDirectory, File targetDir) {
 
         //Try/catch used for NullPointerException to Directory
         try {
@@ -64,8 +58,4 @@ public class FileSorter {
         }
     }
 
-    //Method to allow easier retrieval of user input
-    public static String retreiveUserInput() {
-        return userInput.nextLine();
-    }
 }

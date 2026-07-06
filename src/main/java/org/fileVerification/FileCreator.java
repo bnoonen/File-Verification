@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Scanner;
 
 
 /*
@@ -19,10 +18,11 @@ Current uses: Generate blank PDFs based on ranges provided for holeID, operation
  */
 public class FileCreator {
 
+    //DEPRECATED
     //Initialize scanner for use within class
-    private static Scanner userInput = new Scanner(System.in);
+    //private static Scanner userInput = new Scanner(System.in);
 
-    static void main(String[] args) {
+    public void createTestData(String pathToSave) {
 
         //Simple array to iterate and create files with holeIDs. Easily mutable to allow for mistakes, etc
         String[] holeID = {"P10D", "P11D", "P12D", "P13D", "P14D", "P15D",
@@ -31,11 +31,11 @@ public class FileCreator {
         String[] operationType = {"OPTV Bore Log", "ATV Bore Log", "Drill Log", "Drill Data", "Geologist Log", "Grouting Data"};
 
         //Iteratable array in case I want even depths. Each depth will be considered a stage
-        int stages = 10;
+        int stageCount = 10;
 
         //User input to file path for saving example files using scanner
-        System.out.println("Please enter the path to where you want to save your files");
-        String pathToSave = getUserInput();
+        //System.out.println("Please enter the path to where you want to save your files");
+        //String pathToSave = getUserInput();
 
         /*
         For loop structure:
@@ -61,29 +61,44 @@ public class FileCreator {
                 double startDepth = 0;
                 double endDepth = 0;
                 int stageNum = 1;
-                double curDepth = 0;
+                double curDepth = 0; //Currently unused, but planned
 
-                //Iterating through
-                for (int i = 1; i < stages + 1; i++) {
+                //Iterating through stageCount, i = 1 as starter, count to stageCount + 1 to allow stageCount to be the total number of stages
+                for (int i = 1; i < stageCount + 1; i++) {
+
+                    //randomDistance set to be 15 based on equation below (Math.random() * (Max - Min) + Min)
                     randomDistance = (Math.random() * (20 - 5)) + 5;
-                    randomDistance = Math.round(randomDistance * 10.0) / 10.0;
+
+                    //Round and multiple / divide randomDistance to truncate after first decimal
+                    randomDistance = roundToDecimal(randomDistance, 1);
+                    // randomDistance = Math.round(randomDistance * 10.0) / 10.0;
+
+                    //endDepth set to startDepth + randomDistance per stage as described above
                     endDepth = startDepth + randomDistance;
 
+                    //Round both startDepth and endDepth to allow for least likely .0000000000001 added or subtracted from both depths later.
                     startDepth = roundToDecimal(startDepth, 1);
                     endDepth = roundToDecimal(endDepth, 1);
 
+                    //Set curDepth to startDepth to allow for data inputs to log as if currently drilling
                     curDepth = startDepth;
-                    String fileName = hole + " - " + operation + " - STAGE-" + stageNum + " " + startDepth + " to " + endDepth;
-                    System.out.println();
 
+                    //Set fileName per variables mentioned above. Format does not use nice delimiters as that was the case in the real world.
+                    String fileName = hole + " - " + operation + " - STAGE-" + stageNum + " " + startDepth + " to " + endDepth;
+
+                    //Define filePath before switch, as there will be multiple fileTypes depending on the operation performed
                     Path filePath;
 
+                    //Define maximum time signature to iterate to. Generally stages take 20 hours max, 10 min. Dividing by 3600 seconds to reduce file size and clutter
                     int timeSigMax = (int) Math.round((Math.random() * (5400000 - 1080000) + 1080000)) / 3600;
+
+                    //Switch defined to generate differing files per operation performed
                     switch (operation) {
 
+                        //Case "Drill Data" to create .csv with random data inside
                         case "Drill Data":
                             filePath = Path.of(pathToSave + "/" + fileName + ".csv");
-                            writeRandomData(timeSigMax, curDepth, startDepth, endDepth, filePath);
+                            writeRandomData(timeSigMax, startDepth, endDepth, filePath);
 
                             //DEPRECATED AND MOVED TO METHOD
                             /*for (int i = 0; i < timeSigMax; i++) {
@@ -101,47 +116,10 @@ public class FileCreator {
                                 */
                             break;
 
-                        case "Drill Log":
-                            createPDFFile(fileName, pathToSave);
-
-                            //DEPRECATED AND MOVED TO METHOD
-                            /*filePath = Path.of(pathToSave + "/" + fileName + ".pdf");
-                            try {
-                                Files.writeString(filePath, "TEST", StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-                            } catch (IOException e) {
-                                System.err.println("An error occurred while creating the file: " + e);
-
-                            }*/
-                            break;
-
-                        case "OPTV Bore Log":
-                            createPDFFile(fileName, pathToSave);
-
-                            //DEPRECATED AND MOVED TO METHOD
-                            /*filePath = Path.of(pathToSave + "/" + fileName + ".pdf");
-                            try {
-                                Files.writeString(filePath, "TEST", StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-                            } catch (IOException e) {
-                                System.err.println("An error occurred while creating the file: " + e);
-                            }*/
-                            break;
-
-                        case "ATV Bore Log":
-                            createPDFFile(fileName, pathToSave);
-
-                            //DEPRECATED AND MOVED TO METHOD
-                            /*
-                            filePath = Path.of(pathToSave + "/" + fileName + ".pdf");
-                            try {
-                                Files.writeString(filePath, "TEST", StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-                            } catch (IOException e) {
-                                System.err.println("An error occurred while creating the file: " + e);
-                            }*/
-                            break;
-
+                        //Case "Grouting Data" to create .csv with random data inside
                         case "Grouting Data":
                             filePath = Path.of(pathToSave + "/" + fileName + ".csv");
-                            writeRandomData(timeSigMax, curDepth, startDepth, endDepth, filePath);
+                            writeRandomData(timeSigMax, startDepth, endDepth, filePath);
 
                             //DEPRECATED AND MOVED TO METHOD
                             /*
@@ -157,40 +135,120 @@ public class FileCreator {
                                 curDepth += (endDepth-startDepth)/timeSigMax;
                             }*/
                             break;
+
+                        //Case "Drill Log" to create semi-blank .pdf
+                        case "Drill Log":
+                            createPDFFile(fileName, pathToSave);
+
+                            //DEPRECATED AND MOVED TO METHOD
+                            /*filePath = Path.of(pathToSave + "/" + fileName + ".pdf");
+                            try {
+                                Files.writeString(filePath, "TEST", StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                            } catch (IOException e) {
+                                System.err.println("An error occurred while creating the file: " + e);
+
+                            }*/
+                            break;
+
+
+                        //Case "OPTV Bore Log" to create semi-blank .pdf
+                        case "OPTV Bore Log":
+                            createPDFFile(fileName, pathToSave);
+
+                            //DEPRECATED AND MOVED TO METHOD
+                            /*filePath = Path.of(pathToSave + "/" + fileName + ".pdf");
+                            try {
+                                Files.writeString(filePath, "TEST", StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                            } catch (IOException e) {
+                                System.err.println("An error occurred while creating the file: " + e);
+                            }*/
+                            break;
+
+                        //Case "ATV Bore Log" to create semi-blank .pdf
+                        case "ATV Bore Log":
+                            createPDFFile(fileName, pathToSave);
+
+                            //DEPRECATED AND MOVED TO METHOD
+                            /*
+                            filePath = Path.of(pathToSave + "/" + fileName + ".pdf");
+                            try {
+                                Files.writeString(filePath, "TEST", StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                            } catch (IOException e) {
+                                System.err.println("An error occurred while creating the file: " + e);
+                            }*/
+                            break;
+
                     }
+                    //Increase stage number and reset start depth to continue into the next stage
                     stageNum++;
                     startDepth = endDepth;
                 }
-                System.out.println("File Created Successfully");
+
+                //Will have toggle debug mode
+                //Prompt user that file has been created
+                //System.out.println("File Created Successfully");
             }
         }
     }
 
-    public static double roundToDecimal(double i, int n) {
+    //Method to round to Decimal places at will using method of multiple x factor of 10, then divide by same factor after rounding
+    //Removed placeholder num variable as redundant to save space
+    public static double roundToDecimal(double inputNum, int n) {
         double factor = Math.pow(10, n);
-        double num = Math.round(i * factor) / factor;
-
-        System.out.println(num);
-        return num;
+        return Math.round(inputNum * factor) / factor;
     }
 
+    /* DEPRECATED FOR MAIN CLASS
+    //Simple getUserInput using scanner.nextLine();
     public static String getUserInput() {
         return userInput.nextLine();
-    }
+    }*/
 
-    public static void writeRandomData(int timeSigMax, double curDepth, double startDepth, double endDepth, Path filePath) {
+    /*
+    Method to write random user data to file
+    Returns: none. Prints error in case of failure to write
+     */
+    public static void writeRandomData(int timeSigMax, double startDepth, double endDepth, Path filePath) {
+        //Track curDepth to log to file as data
+        double curDepth = startDepth;
+
         for (int i = 0; i < timeSigMax; i++) {
+            //Create random chance for data to be wrong for validation later
+            double causeInvalidEntry = Math.random();
+
+            //If statement to increase depth by large amount to be caught in validation later
+            if (causeInvalidEntry > .97) {
+                //User Feedback on creation of file. Will swap for togglable debug mode
+                //System.out.println("Writing invalid data to file: " + filePath + " : " + causeInvalidEntry);
+                curDepth += causeInvalidEntry * 10;
+            }
+
+            //Content string to be written to file
             String content = i + ", " + curDepth + "\n";
 
+            //If statement to reduce depth by same increased amount to continue data smoothly
+            if (causeInvalidEntry > .97)
+                curDepth -= causeInvalidEntry*10;
+
+            //Try to write to file with content. Options set to create file if none exists or append if one does. Caught in error and outputted to user.
             try {
                 Files.writeString(filePath, content, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
             } catch (IOException e) {
-                System.out.println("An error occurred while creating the file.");
-                e.printStackTrace();
+                System.err.println("Error writing Random Data: " + e);
             }
-            curDepth += (endDepth - startDepth) / timeSigMax + startDepth;
+
+            /*
+            Increment curDepth by interval between start/end depth and / by timeSigMax to have even steps between. Add startDepth to keep within the stage.
+            Ie: start: 100, end: 115, timeSigMax = 500. So curDepth = 100 -> (115-100) / 500 + 100 -> 15/500 + initial 100. So every step will increment by 15/500
+             */
+
+            curDepth += (endDepth - startDepth) / timeSigMax;
+
+
         }
     }
+
+    //Method to create PDF files that have basic test data in them. Will fill with regular data later. Returns error should file fail to be created.
     public static void createPDFFile(String fileName, String pathToSave) {
         Path filePath = Path.of(pathToSave + "/" + fileName + ".pdf");
         try {

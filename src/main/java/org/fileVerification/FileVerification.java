@@ -1,10 +1,16 @@
 package org.fileVerification;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-/*
-So far unused
- */
+
 public class FileVerification {
-    public static void main() {
-        System.out.println("Enter the location of the files that are ");
+    public void verifyDepthsInFile (Path toInputFile) {
+        try {
+            System.out.println(Files.readAllLines(toInputFile));
+        } catch (IOException ioE) {
+            System.err.println("Error reading file during verification: " + ioE);
+        }
     }
 }
