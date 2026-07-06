@@ -1,8 +1,12 @@
 package org.fileVerification;
 
+/*
+Project by Brenden Noonen
+ */
+
 import java.io.File;
 
-public class FileSorter {
+public class FileSorter implements Sorter{
 
     //Initialize FileReader to allow sorting
     private LocalFileReader localReader;

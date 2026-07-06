@@ -1,5 +1,9 @@
 package org.fileVerification;
 
+/*
+Project by Brenden Noonen
+ */
+
 import java.io.File;
 import java.util.Scanner;
 
@@ -9,6 +13,7 @@ public class Main {
     private static final LocalFileReader localReader = new LocalFileReader();
     private static final Scanner userInput = new Scanner(System.in);
     private static final FileSorter sorter = new FileSorter(localReader);
+    private static final FileVerification verifier = new FileVerification(localReader);
 
     static void main() {
         //Take user input for old directory. Save as File per io.File
@@ -18,7 +23,7 @@ public class Main {
         //try/catch to test if there are files in the directory to experiment with, if not, create them. Catch returns NullPointerException and user feedback.
         try {
             if (oldDirectory.listFiles().length == 0) {
-                FileCreator FC = new FileCreator();
+                LocalFileCreator FC = new LocalFileCreator();
                 FC.createTestData(oldDirectory.toString());
             }
         } catch (NullPointerException npE) {

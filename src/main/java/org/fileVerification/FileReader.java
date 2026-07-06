@@ -1,5 +1,9 @@
 package org.fileVerification;
 
+/*
+Project by Brenden Noonen
+ */
+
 import java.io.File;
 
 public interface FileReader {
