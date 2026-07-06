@@ -5,7 +5,7 @@ import java.io.File;
 public class FileSorter {
 
     //Initialize FileReader to allow sorting
-    private LocalFileReader localReader = new LocalFileReader();
+    private LocalFileReader localReader;
 
     //Initialize FileSorter object variables for use in file upon object creation
     public FileSorter(LocalFileReader masterReader) {
@@ -36,7 +36,7 @@ public class FileSorter {
                 File holeDir = new File (targetDir + "/" + holeID);
                 if (!holeDir.exists()) {
                     holeDir.mkdir();
-                    System.out.println("making directory for object for: " + holeDir.toString());
+                    System.out.println("making directory for object for: " + holeDir);
                 }
 
 
@@ -45,7 +45,7 @@ public class FileSorter {
                 File operationDir = new File (holeDir + "/" + operation);
                 if (!operationDir.exists()) {
                     operationDir.mkdir();
-                    System.out.println("making directory for object for: " + operationDir.toString());
+                    System.out.println("making directory for object for: " + operationDir);
                 }
 
                 //If directory and operation are made/exist, move file to directory, else move to null directory
